@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "308090552095",
+    "project_id": "fluttalk",
+    "storage_bucket": "fluttalk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308090552095:android:a58abf5313230095e8ba2a",
+        "android_client_info": {
+          "package_name": "org.flutterseoul.fluttalk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIl-n52XB3yG__EwKjRL-YPuj1yoWE9Qs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
