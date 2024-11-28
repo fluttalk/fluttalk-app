@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fluttalk/core/network/dio_client.dart';
 import 'package:fluttalk/firebase_options.dart';
 import 'package:fluttalk/presentation/screens/auth_state_screen.dart';
 import 'package:fluttalk/presentation/screens/welcome_screen.dart';
 import 'package:fluttalk/presentation/theme/my_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,12 +21,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: MyTheme.light(),
-      debugShowCheckedModeBanner: false,
-      home: FirebaseAuth.instance.currentUser != null
-          ? const AuthStateScreen()
-          : const WelcomeScreen(),
+    return RepositoryProvider(
+      create: (context) => DioClient(),
+      child: MaterialApp(
+        theme: MyTheme.light(),
+        debugShowCheckedModeBanner: false,
+        home: FirebaseAuth.instance.currentUser != null
+            ? const AuthStateScreen()
+            : const WelcomeScreen(),
+      ),
     );
   }
 }
