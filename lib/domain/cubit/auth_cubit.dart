@@ -1,6 +1,7 @@
 import 'package:fluttalk/core/state/async_value.dart';
 import 'package:fluttalk/domain/entities/user_entity.dart';
 import 'package:fluttalk/domain/usecase/auth/index.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthCubit extends Cubit<AsyncValue<UserEntity>> {
@@ -9,6 +10,8 @@ class AuthCubit extends Cubit<AsyncValue<UserEntity>> {
   final SignUpUseCase _signUpUseCase;
   final UpdateMeUseCase _updateMeUseCase;
   final SignOutUseCase _signOutUseCase;
+  final AddFriendUseCase _addFriendUseCase;
+  final RemoveFriendUseCase _removeFriendUseCase;
 
   AuthCubit({
     required GetMeUseCase getMeUseCase,
@@ -16,11 +19,15 @@ class AuthCubit extends Cubit<AsyncValue<UserEntity>> {
     required SignUpUseCase signUpUseCase,
     required UpdateMeUseCase updateMeUseCase,
     required SignOutUseCase signOutUseCase,
+    required AddFriendUseCase addFriendUseCase,
+    required RemoveFriendUseCase removeFriendUseCase,
   })  : _getMeUseCase = getMeUseCase,
         _signInUseCase = signInUseCase,
         _signUpUseCase = signUpUseCase,
         _updateMeUseCase = updateMeUseCase,
         _signOutUseCase = signOutUseCase,
+        _addFriendUseCase = addFriendUseCase,
+        _removeFriendUseCase = removeFriendUseCase,
         super(const AsyncInitial());
 
   Future<void> getMe() async {
@@ -77,6 +84,24 @@ class AuthCubit extends Cubit<AsyncValue<UserEntity>> {
     result.fold(
       (error) => emit(AsyncError(error.message)),
       (_) => emit(const AsyncInitial()),
+    );
+  }
+
+  Future<void> addFriend(String email) async {
+    emit(const AsyncLoading());
+    final result = await _addFriendUseCase.execute(email);
+    result.fold(
+      (error) => emit(AsyncError(error.message)),
+      (user) => emit(AsyncData(user)),
+    );
+  }
+
+  Future<void> removeFriend(String email) async {
+    emit(const AsyncLoading());
+    final result = await _removeFriendUseCase.execute(email);
+    result.fold(
+      (error) => emit(AsyncError(error.message)),
+      (user) => emit(AsyncData(user)),
     );
   }
 }
