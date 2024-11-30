@@ -41,6 +41,7 @@ dependencies:
   flutter_bloc: ^8.1.6
   bloc_test: ^9.1.7
   pretty_dio_logger: ^1.4.0
+  fpdart: ^1.1.1
 
 dev_dependencies:
   flutter_test:
