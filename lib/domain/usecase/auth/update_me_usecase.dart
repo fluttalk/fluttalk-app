@@ -12,6 +12,11 @@ class UpdateMeUseCase {
 
   Future<Either<AppException, UserEntity>> execute(String name) async {
     try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        return Left(UnauthorizedException());
+      }
+
       // 1. 이름 업데이트
       await _repository.updateMe(
         UpdateMeRequest(name: name),
@@ -19,15 +24,14 @@ class UpdateMeUseCase {
 
       // 2. 최신 정보 가져오기
       final user = await _repository.getMe();
-      final currentUser = _auth.currentUser;
 
       return Right(UserEntity(
         id: user.uid,
         email: user.email ?? '',
         name: user.displayName,
         friendIds: user.friendIds,
-        createdAt: currentUser?.metadata.creationTime ?? DateTime.now(),
-        lastLoginAt: currentUser?.metadata.lastSignInTime ?? DateTime.now(),
+        createdAt: currentUser.metadata.creationTime ?? DateTime.now(),
+        lastLoginAt: currentUser.metadata.lastSignInTime ?? DateTime.now(),
         pushEnabled: true,
       ));
     } catch (e) {

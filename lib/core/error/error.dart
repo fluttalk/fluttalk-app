@@ -22,6 +22,18 @@ class WrongPasswordException extends AuthException {
   WrongPasswordException() : super('잘못된 비밀번호입니다');
 }
 
+class WeakPasswordException extends AuthException {
+  WeakPasswordException() : super('비밀번호가 너무 약합니다. 6자 이상 입력해주세요');
+}
+
+class EmailAlreadyInUseException extends AuthException {
+  EmailAlreadyInUseException() : super('이미 사용 중인 이메일입니다');
+}
+
+class OperationNotAllowedException extends AuthException {
+  OperationNotAllowedException() : super('이메일/비밀번호 로그인이 비활성화되어 있습니다');
+}
+
 class UnknownException extends AppException {
   const UnknownException() : super('알 수 없는 오류가 발생했습니다');
 }
@@ -71,6 +83,12 @@ class AppErrorHandler {
         return WrongPasswordException();
       case 'invalid-email':
         return InvalidEmailException();
+      case 'weak-password':
+        return WeakPasswordException();
+      case 'email-already-in-use':
+        return EmailAlreadyInUseException();
+      case 'operation-not-allowed':
+        return OperationNotAllowedException();
       default:
         return AuthException('인증 오류가 발생했습니다');
     }

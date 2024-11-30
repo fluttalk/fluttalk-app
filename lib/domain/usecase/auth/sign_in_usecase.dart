@@ -17,6 +17,10 @@ class SignInUseCase {
         email: email,
         password: password,
       );
+
+      if (credential.user == null) {
+        return Left(AuthException('로그인에 실패했습니다'));
+      }
       final user = await _repository.getMe();
 
       return Right(UserEntity(
@@ -24,8 +28,8 @@ class SignInUseCase {
         email: user.email ?? '',
         name: user.displayName,
         friendIds: user.friendIds,
-        createdAt: credential.user!.metadata.creationTime ?? DateTime.now(),
-        lastLoginAt: credential.user!.metadata.lastSignInTime ?? DateTime.now(),
+        createdAt: credential.user?.metadata.creationTime ?? DateTime.now(),
+        lastLoginAt: credential.user?.metadata.lastSignInTime ?? DateTime.now(),
         pushEnabled: true,
       ));
     } catch (e) {

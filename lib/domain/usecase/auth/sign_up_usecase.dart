@@ -19,6 +19,11 @@ class SignUpUseCase {
         password: password,
       );
 
+      final signedInUser = credential.user;
+      if (signedInUser == null) {
+        return Left(AuthException('회원가입에 실패했습니다'));
+      }
+
       // 2. 회원가입 후 유저 정보 가져오기
       final user = await _repository.getMe();
 
@@ -27,8 +32,8 @@ class SignUpUseCase {
         email: user.email ?? '',
         name: user.displayName,
         friendIds: user.friendIds,
-        createdAt: credential.user!.metadata.creationTime ?? DateTime.now(),
-        lastLoginAt: credential.user!.metadata.lastSignInTime ?? DateTime.now(),
+        createdAt: signedInUser.metadata.creationTime ?? DateTime.now(),
+        lastLoginAt: signedInUser.metadata.lastSignInTime ?? DateTime.now(),
         pushEnabled: true,
       ));
     } catch (e) {
