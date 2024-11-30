@@ -2,7 +2,7 @@ class User {
   final String uid;
   final String? email;
   final String? displayName;
-  final List<String> friendIds; // Firebase에 저장되는 User 모델에는 friendIds가 있네요
+  final List<String> friendIds;
 
   const User({
     required this.uid,
