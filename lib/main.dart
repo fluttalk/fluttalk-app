@@ -4,6 +4,7 @@ import 'package:fluttalk/core/network/dio_client.dart';
 import 'package:fluttalk/data/repositories/auth_repository.dart';
 import 'package:fluttalk/data/repositories/chat_repository.dart';
 import 'package:fluttalk/data/repositories/friend_repository.dart';
+import 'package:fluttalk/data/repositories/message_repository.dart';
 import 'package:fluttalk/firebase_options.dart';
 import 'package:fluttalk/presentation/screens/auth_state_screen.dart';
 import 'package:fluttalk/presentation/screens/welcome_screen.dart';
@@ -27,11 +28,14 @@ class MyApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (context) => DioClient(baseUrl: ''),
+          create: (context) => DioClient(
+            baseUrl: '',
+          ),
         ),
         RepositoryProvider(
           create: (context) => AuthRepository(
             context.read<DioClient>().dio,
+            FirebaseAuth.instance,
           ),
         ),
         RepositoryProvider(
@@ -41,6 +45,11 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => ChatRepository(
+            context.read<DioClient>().dio,
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => MessageRepository(
             context.read<DioClient>().dio,
           ),
         ),
