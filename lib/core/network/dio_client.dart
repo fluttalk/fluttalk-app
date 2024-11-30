@@ -2,20 +2,19 @@ import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class DioClient {
-  late final Dio dio;
+  final Dio dio;
 
-  DioClient() {
-    dio = Dio(
-      BaseOptions(
-        baseUrl: 'YOUR_BASE_URL',
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-        contentType: 'application/json',
-      ),
-    )..interceptors.add(
-        CustomPrettyDioLogger(),
-      );
-  }
+  DioClient({required String baseUrl})
+      : dio = Dio(
+          BaseOptions(
+            baseUrl: baseUrl,
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 3),
+            contentType: 'application/json',
+          ),
+        )..interceptors.add(
+            CustomPrettyDioLogger(),
+          );
 }
 
 /// Creates a PrettyDioLogger object. This logger configuration displays request headers,
