@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class DioClient {
@@ -12,9 +13,10 @@ class DioClient {
             receiveTimeout: const Duration(seconds: 3),
             contentType: 'application/json',
           ),
-        )..interceptors.add(
+        )..interceptors.addAll([
             CustomPrettyDioLogger(),
-          );
+            TokenInterceptor(),
+          ]);
 }
 
 /// Creates a PrettyDioLogger object. This logger configuration displays request headers,
@@ -46,4 +48,16 @@ class CustomPrettyDioLogger extends PrettyDioLogger {
 
             /// Set maximum log width
             );
+}
+
+class TokenInterceptor extends Interceptor {
+  @override
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    if (token != null) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    handler.next(options);
+  }
 }

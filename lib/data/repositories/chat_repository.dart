@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fluttalk/data/models/chat.dart';
-import 'package:fluttalk/data/models/pagination_response.dart';
+import 'package:fluttalk/core/api/pagination_response.dart';
 
 class ChatRepository {
   final Dio _dio;
