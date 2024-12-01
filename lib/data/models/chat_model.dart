@@ -1,14 +1,14 @@
-import 'package:fluttalk/data/models/message.dart';
+import 'package:fluttalk/data/models/message_model.dart';
 
-class Chat {
+class ChatModel {
   final String id;
   final String title;
   final List<String> members;
   final int createdAt;
   final int updatedAt;
-  final Message? lastMessage;
+  final MessageModel? lastMessage;
 
-  const Chat({
+  const ChatModel({
     required this.id,
     required this.title,
     required this.members,
@@ -17,14 +17,14 @@ class Chat {
     this.lastMessage,
   });
 
-  factory Chat.fromJson(Map<String, dynamic> json) => Chat(
+  factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
         id: json['id'],
         title: json['title'],
         members: List<String>.from(json['members']),
         createdAt: json['createdAt'],
         updatedAt: json['updatedAt'],
         lastMessage: json['lastMessage'] != null
-            ? Message.fromJson(json['lastMessage'])
+            ? MessageModel.fromJson(json['lastMessage'])
             : null,
       );
 

@@ -1,32 +1,32 @@
 import 'package:dio/dio.dart';
-import 'package:fluttalk/data/models/user.dart';
+import 'package:fluttalk/data/models/user_model.dart';
 
 class FriendRepository {
   final Dio _dio;
 
   FriendRepository(this._dio);
 
-  Future<List<User>> getFriends() async {
+  Future<List<UserModel>> getFriends() async {
     final response = await _dio.get('getFriends');
     return (response.data['results'] as List)
-        .map((json) => User.fromJson(json))
+        .map((json) => UserModel.fromJson(json))
         .toList();
   }
 
-  Future<User> addFriendByEmail(AddFriendRequest request) async {
+  Future<UserModel> addFriendByEmail(AddFriendRequest request) async {
     final response = await _dio.post(
       'addFriendByEmail',
       data: request.toJson(),
     );
-    return User.fromJson(response.data['result']);
+    return UserModel.fromJson(response.data['result']);
   }
 
-  Future<User> removeFriendByEmail(RemoveFriendRequest request) async {
+  Future<UserModel> removeFriendByEmail(RemoveFriendRequest request) async {
     final response = await _dio.post(
       'removeFriendByEmail',
       data: request.toJson(),
     );
-    return User.fromJson(response.data['result']);
+    return UserModel.fromJson(response.data['result']);
   }
 }
 

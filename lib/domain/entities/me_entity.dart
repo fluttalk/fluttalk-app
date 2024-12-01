@@ -1,4 +1,4 @@
-class UserEntity {
+class MeEntity {
   final String id;
   final String email;
   final String? name;
@@ -10,7 +10,7 @@ class UserEntity {
   final List<String> friendIds;
   final bool pushEnabled;
 
-  const UserEntity({
+  const MeEntity({
     required this.id,
     required this.email,
     this.name,
@@ -23,7 +23,7 @@ class UserEntity {
     this.pushEnabled = true,
   });
 
-  UserEntity copyWith({
+  MeEntity copyWith({
     String? name,
     String? phone,
     String? photoUrl,
@@ -32,7 +32,7 @@ class UserEntity {
     List<String>? friendIds,
     bool? pushEnabled,
   }) =>
-      UserEntity(
+      MeEntity(
         id: id,
         email: email,
         name: name ?? this.name,

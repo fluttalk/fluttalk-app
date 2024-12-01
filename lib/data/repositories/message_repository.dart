@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:fluttalk/data/models/message.dart';
+import 'package:fluttalk/data/models/message_model.dart';
 
 class MessageRepository {
   final Dio _dio;
   MessageRepository(this._dio);
 
-  Future<Message> sendMessage(SendMessageRequest request) async {
+  Future<MessageModel> sendMessage(SendMessageRequest request) async {
     final response = await _dio.post(
       'sendMessage',
       data: request.toJson(),
     );
-    return Message.fromJson(response.data['result']);
+    return MessageModel.fromJson(response.data['result']);
   }
 }
 

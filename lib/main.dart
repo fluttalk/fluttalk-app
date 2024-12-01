@@ -5,6 +5,7 @@ import 'package:fluttalk/data/repositories/auth_repository.dart';
 import 'package:fluttalk/data/repositories/chat_repository.dart';
 import 'package:fluttalk/data/repositories/friend_repository.dart';
 import 'package:fluttalk/data/repositories/message_repository.dart';
+import 'package:fluttalk/data/repositories/user_repository.dart';
 import 'package:fluttalk/firebase_options.dart';
 import 'package:fluttalk/presentation/screens/auth_state_screen.dart';
 import 'package:fluttalk/presentation/screens/welcome_screen.dart';
@@ -34,8 +35,12 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => AuthRepository(
-            context.read<DioClient>().dio,
             FirebaseAuth.instance,
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => UserRepository(
+            context.read<DioClient>().dio,
           ),
         ),
         RepositoryProvider(

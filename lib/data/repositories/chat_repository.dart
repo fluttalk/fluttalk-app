@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:fluttalk/data/models/chat.dart';
+import 'package:fluttalk/data/models/chat_model.dart';
 import 'package:fluttalk/core/api/pagination_response.dart';
 
 class ChatRepository {
@@ -7,7 +7,7 @@ class ChatRepository {
 
   ChatRepository(this._dio);
 
-  Future<PaginationResponse<Chat>> getChats(GetChatsQuery query) async {
+  Future<PaginationResponse<ChatModel>> getChats(GetChatsQuery query) async {
     final response = await _dio.get(
       'getChats',
       queryParameters: query.toQueryParameters(),
@@ -15,16 +15,16 @@ class ChatRepository {
 
     return PaginationResponse.fromJson(
       response.data,
-      (json) => Chat.fromJson(json),
+      (json) => ChatModel.fromJson(json),
     );
   }
 
-  Future<Chat> createChat(CreateChatRequest request) async {
+  Future<ChatModel> createChat(CreateChatRequest request) async {
     final response = await _dio.post(
       'createChat',
       data: request.toJson(),
     );
-    return Chat.fromJson(response.data['result']);
+    return ChatModel.fromJson(response.data['result']);
   }
 }
 

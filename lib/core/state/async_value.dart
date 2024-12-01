@@ -11,8 +11,8 @@ class AsyncLoading<T> extends AsyncValue<T> {
 }
 
 class AsyncData<T> extends AsyncValue<T> {
-  final T value;
-  const AsyncData(this.value);
+  final T data;
+  const AsyncData(this.data);
 }
 
 class AsyncError<T> extends AsyncValue<T> {

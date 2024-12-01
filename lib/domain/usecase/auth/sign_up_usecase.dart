@@ -1,20 +1,21 @@
 import 'package:fluttalk/core/error/error.dart';
 import 'package:fluttalk/data/repositories/auth_repository.dart';
-import 'package:fluttalk/domain/entities/user_entity.dart';
+import 'package:fluttalk/data/repositories/user_repository.dart';
+import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fpdart/fpdart.dart';
 
 class SignUpUseCase {
-  final AuthRepository _repository;
+  final AuthRepository _authRepository;
+  final UserRepository _userRepository;
 
-  SignUpUseCase(this._repository);
+  SignUpUseCase(this._authRepository, this._userRepository);
 
-  Future<Either<AppException, UserEntity>> execute({
+  Future<Either<AppException, MeEntity>> execute({
     required String email,
     required String password,
   }) async {
     try {
-      // 1. Firebase 회원가입
-      final credential = await _repository.signUpWithEmail(
+      final credential = await _authRepository.signUpWithEmail(
         email: email,
         password: password,
       );
@@ -24,10 +25,9 @@ class SignUpUseCase {
         return Left(AuthException('회원가입에 실패했습니다'));
       }
 
-      // 2. 회원가입 후 유저 정보 가져오기
-      final user = await _repository.getMe();
+      final user = await _userRepository.getMe();
 
-      return Right(UserEntity(
+      return Right(MeEntity(
         id: user.uid,
         email: user.email ?? '',
         name: user.displayName,

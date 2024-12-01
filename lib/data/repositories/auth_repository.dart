@@ -1,25 +1,9 @@
-import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide User;
-import 'package:fluttalk/data/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {
-  final Dio _dio;
   final FirebaseAuth _auth;
 
-  AuthRepository(this._dio, this._auth);
-
-  Future<User> getMe() async {
-    final response = await _dio.get('getMe');
-    return User.fromJson(response.data['result']);
-  }
-
-  Future<User> updateMe(UpdateMeRequest request) async {
-    final response = await _dio.post(
-      'updateMe',
-      data: request.toJson(),
-    );
-    return User.fromJson(response.data['result']);
-  }
+  AuthRepository(this._auth);
 
   Future<UserCredential> signInWithEmail({
     required String email,
@@ -44,12 +28,8 @@ class AuthRepository {
   Future<void> signOut() async {
     await _auth.signOut();
   }
-}
 
-class UpdateMeRequest {
-  final String name;
+  User? get currentUser => _auth.currentUser;
 
-  const UpdateMeRequest({required this.name});
-
-  Map<String, dynamic> toJson() => {'name': name};
+  Stream<User?> authStateChanges() => _auth.authStateChanges();
 }
