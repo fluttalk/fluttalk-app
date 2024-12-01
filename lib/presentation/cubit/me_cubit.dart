@@ -6,7 +6,7 @@ import 'package:fluttalk/data/repositories/auth_repository.dart';
 import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../usecase/user/index.dart';
+import '../../domain/usecase/user/index.dart';
 
 class MeCubit extends Cubit<AsyncValue<MeEntity>> {
   final GetMeUseCase _getMeUseCase;
