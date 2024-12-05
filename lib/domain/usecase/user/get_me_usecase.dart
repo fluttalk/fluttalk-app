@@ -5,32 +5,53 @@ import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fpdart/fpdart.dart';
 
 class GetMeUseCase {
-  final AuthRepository _authRepository;
   final UserRepository _userRepository;
+  final AuthRepository _authRepository;
 
-  GetMeUseCase(this._authRepository, this._userRepository);
+  GetMeUseCase(
+    this._userRepository,
+    this._authRepository,
+  );
 
   Future<Either<AppException, MeEntity>> execute() async {
     try {
-      final firebaseUser = _authRepository.currentUser;
-      if (firebaseUser == null) {
-        return Left(UnauthorizedException());
+      final account = _authRepository.currentUser;
+      if (account == null) {
+        return Left(
+          NullUserException(),
+        );
       }
 
-      final user = await _userRepository.getMe();
-      return Right(MeEntity(
-        id: user.uid,
-        email: user.email ?? '',
-        createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
-        lastLoginAt: firebaseUser.metadata.lastSignInTime ?? DateTime.now(),
-        friendIds: [],
-        pushEnabled: true,
-      ).copyWith(
-        name: user.displayName,
-        friendIds: user.friendIds,
-      ));
+      final response = await _userRepository.getMe();
+
+      if (response.code != null) {
+        final code = response.code ?? 500;
+        final message = response.message ?? '알 수 없는 오류가 발생했습니다';
+        return Left(
+          ApiException(
+            code: code,
+            message: message,
+          ),
+        );
+      }
+
+      final user = response.result;
+      if (user == null) {
+        return const Left(
+          NoResultException(),
+        );
+      }
+
+      return Right(
+        MeEntity.from(
+          userModel: user,
+          accountModel: account,
+        ),
+      );
     } catch (e) {
-      return Left(AppErrorHandler.handle(e));
+      return Left(
+        AppErrorHandler.handle(e),
+      );
     }
   }
 }

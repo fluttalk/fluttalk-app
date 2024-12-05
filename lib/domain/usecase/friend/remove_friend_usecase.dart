@@ -4,25 +4,41 @@ import 'package:fluttalk/domain/entities/friend_entity.dart';
 import 'package:fpdart/fpdart.dart';
 
 class RemoveFriendUseCase {
-  final FriendRepository _repository;
+  final FriendRepository _friendRepository;
 
-  RemoveFriendUseCase(this._repository);
+  RemoveFriendUseCase(this._friendRepository);
 
-  Future<Either<AppException, FriendEntity>> execute(String email) async {
+  Future<Either<AppException, FriendEntity>> execute(
+      {required String email}) async {
     try {
-      final user = await _repository.removeFriendByEmail(
-        RemoveFriendRequest(email: email),
+      final response =
+          await _friendRepository.removeFriendByEmail(email: email);
+
+      if (response.code != null) {
+        final code = response.code ?? 500;
+        final message = response.message ?? '알 수 없는 오류가 발생했습니다';
+        return Left(
+          ApiException(
+            code: code,
+            message: message,
+          ),
+        );
+      }
+
+      final friend = response.result;
+      if (friend == null) {
+        return const Left(
+          NoResultException(),
+        );
+      }
+
+      return Right(
+        FriendEntity.fromUserModel(friend),
       );
-      return Right(FriendEntity(
-        id: user.uid,
-        email: user.email ?? '',
-        name: user.displayName,
-        photoUrl: user.photoUrl,
-        disabled: user.disabled,
-        emailVerified: user.emailVerified,
-      ));
     } catch (e) {
-      return Left(AppErrorHandler.handle(e));
+      return Left(
+        AppErrorHandler.handle(e),
+      );
     }
   }
 }
