@@ -1,10 +1,40 @@
+import 'package:fluttalk/domain/entities/friend_entity.dart';
+import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fluttalk/gen/assets.gen.dart';
+import 'package:fluttalk/presentation/components/bottom_sheet/edit_chat_title_bottom_sheet.dart';
+import 'package:fluttalk/presentation/components/bottom_sheet/select_friend_bottom_sheet.dart';
 import 'package:fluttalk/presentation/theme/my_colors.dart';
 import 'package:fluttalk/presentation/theme/my_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class ChatListSliverAppBar extends StatelessWidget {
-  const ChatListSliverAppBar({super.key});
+  final Function(FriendEntity me, String title) onCreateChat;
+  const ChatListSliverAppBar({
+    super.key,
+    required this.onCreateChat,
+  });
+
+  _showChatTitleBottomSheet(BuildContext context, FriendEntity friend) async {
+    final title = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: false,
+      builder: (bottomSheetContext) => const EditChatTitleBottomSheet(),
+    );
+    if (title != null) {
+      onCreateChat(friend, title);
+    }
+  }
+
+  _showFriendsBottomSheet(BuildContext context) async {
+    final friend = await showModalBottomSheet<FriendEntity>(
+      context: context,
+      isScrollControlled: false,
+      builder: (bottomSheetContext) => const SelectFriendBottomSheet(),
+    );
+    if (friend != null && context.mounted) {
+      _showChatTitleBottomSheet(context, friend);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +53,7 @@ class ChatListSliverAppBar extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 16, bottom: 8),
           child: InkWell(
-            onTap: () {},
+            onTap: () => _showFriendsBottomSheet(context),
             child: Assets.icons.messagePlusAlt.image(
               scale: 2,
               color: MyColors.neutralActive,
