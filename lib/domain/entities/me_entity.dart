@@ -1,47 +1,39 @@
+import 'package:fluttalk/data/models/account_model.dart';
+import 'package:fluttalk/data/models/user_model.dart';
+
 class MeEntity {
   final String id;
   final String email;
   final String? name;
-  final String? phone;
-  final String? photoUrl;
-  final String? pushToken;
-  final DateTime createdAt;
-  final DateTime lastLoginAt;
-  final List<String> friendIds;
-  final bool pushEnabled;
+  final DateTime lastSignIn;
 
   const MeEntity({
     required this.id,
     required this.email,
     this.name,
-    this.phone,
-    this.photoUrl,
-    this.pushToken,
-    required this.createdAt,
-    required this.lastLoginAt,
-    required this.friendIds,
-    this.pushEnabled = true,
+    required this.lastSignIn,
   });
 
-  MeEntity copyWith({
-    String? name,
-    String? phone,
-    String? photoUrl,
-    String? pushToken,
-    DateTime? lastLoginAt,
-    List<String>? friendIds,
-    bool? pushEnabled,
-  }) =>
-      MeEntity(
-        id: id,
-        email: email,
-        name: name ?? this.name,
-        phone: phone ?? this.phone,
-        photoUrl: photoUrl ?? this.photoUrl,
-        pushToken: pushToken ?? this.pushToken,
-        createdAt: createdAt,
-        lastLoginAt: lastLoginAt ?? this.lastLoginAt,
-        friendIds: friendIds ?? this.friendIds,
-        pushEnabled: pushEnabled ?? this.pushEnabled,
-      );
+  factory MeEntity.from({
+    required UserModel userModel,
+    required AccountModel accountModel,
+  }) {
+    return MeEntity(
+      id: userModel.uid,
+      email: userModel.email,
+      name: userModel.displayName,
+      lastSignIn: accountModel.metadata.lastSignInTime,
+    );
+  }
+
+  factory MeEntity.fromAccount({
+    required AccountModel accountModel,
+  }) {
+    return MeEntity(
+      id: accountModel.uid,
+      email: accountModel.email,
+      name: accountModel.displayName,
+      lastSignIn: accountModel.metadata.lastSignInTime,
+    );
+  }
 }
