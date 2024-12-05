@@ -34,6 +34,10 @@ class OperationNotAllowedException extends AuthException {
   OperationNotAllowedException() : super('이메일/비밀번호 로그인이 비활성화되어 있습니다');
 }
 
+class NullUserException extends AuthException {
+  NullUserException() : super('사용자 정보가 없습니다');
+}
+
 class UnknownException extends AppException {
   const UnknownException() : super('알 수 없는 오류가 발생했습니다');
 }
@@ -89,6 +93,8 @@ class AppErrorHandler {
         return EmailAlreadyInUseException();
       case 'operation-not-allowed':
         return OperationNotAllowedException();
+      case 'null-user':
+        return NullUserException();
       default:
         return AuthException('인증 오류가 발생했습니다');
     }
@@ -110,4 +116,16 @@ class AppErrorHandler {
         return ApiException(code: 0, message: '알 수 없는 오류가 발생했습니다');
     }
   }
+}
+
+class DataFormatException extends AppException {
+  const DataFormatException(super.message);
+}
+
+class NoResultException extends DataFormatException {
+  const NoResultException() : super('응답에 result 필드가 없습니다');
+}
+
+class NoResultsException extends DataFormatException {
+  const NoResultsException() : super('응답에 results 필드가 없습니다');
 }
