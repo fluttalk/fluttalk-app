@@ -1,57 +1,51 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:fluttalk/data/models/chat_model.dart';
 import 'package:fluttalk/core/api/pagination_response.dart';
+import 'package:fluttalk/core/api/single_response.dart';
+import 'package:fluttalk/core/network/end_points.dart';
+import 'package:fluttalk/data/models/chat_model.dart';
 
 class ChatRepository {
   final Dio _dio;
+  final FirebaseFirestore _firestore;
 
-  ChatRepository(this._dio);
+  ChatRepository(this._dio, this._firestore);
 
-  Future<PaginationResponse<ChatModel>> getChats(GetChatsQuery query) async {
+  Future<PaginationResponse<ChatModel>> getChats({
+    String? startAt,
+  }) async {
     final response = await _dio.get(
-      'getChats',
-      queryParameters: query.toQueryParameters(),
+      ApiEndpoints.getChats,
+      queryParameters: {if (startAt != null) 'startAt': startAt},
     );
-
     return PaginationResponse.fromJson(
       response.data,
       (json) => ChatModel.fromJson(json),
     );
   }
 
-  Future<ChatModel> createChat(CreateChatRequest request) async {
+  Future<SingleResponse<ChatModel>> createChat({
+    required String email,
+    required String title,
+  }) async {
     final response = await _dio.post(
-      'createChat',
-      data: request.toJson(),
+      ApiEndpoints.createChat,
+      data: {'email': email, 'title': title},
     );
-    return ChatModel.fromJson(response.data['result']);
+    return SingleResponse.fromJson(
+      response.data,
+      (json) => ChatModel.fromJson(json),
+    );
   }
-}
 
-class GetChatsQuery {
-  final String? startAt;
-
-  const GetChatsQuery({this.startAt});
-
-  Map<String, dynamic>? toQueryParameters() {
-    if (startAt == null) return null;
-    return {'startAt': startAt};
-  }
-}
-
-class CreateChatRequest {
-  final String email;
-  final String title;
-
-  const CreateChatRequest({
-    required this.email,
-    required this.title,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'title': title,
-    };
+  Stream<ChatModel?> watchChat(String chatId) {
+    return _firestore
+        .collection('chats')
+        .doc(chatId)
+        .snapshots()
+        .map((snapshot) {
+      final data = snapshot.data();
+      return data != null ? ChatModel.fromJson(data) : null;
+    });
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttalk/core/network/dio_client.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final firestore = FirebaseFirestore.instance;
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
@@ -51,6 +53,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => ChatRepository(
             context.read<DioClient>().dio,
+            firestore,
           ),
         ),
         RepositoryProvider(

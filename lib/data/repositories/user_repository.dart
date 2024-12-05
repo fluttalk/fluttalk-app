@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:fluttalk/core/api/single_response.dart';
+import 'package:fluttalk/core/network/end_points.dart';
 import 'package:fluttalk/data/models/user_model.dart';
 
 class UserRepository {
@@ -6,24 +8,24 @@ class UserRepository {
 
   UserRepository(this._dio);
 
-  Future<UserModel> getMe() async {
-    final response = await _dio.get('getMe');
-    return UserModel.fromJson(response.data['result']);
-  }
-
-  Future<UserModel> updateMe(UpdateMeRequest request) async {
-    final response = await _dio.post(
-      'updateMe',
-      data: request.toJson(),
+  Future<SingleResponse<UserModel>> getMe() async {
+    final response = await _dio.get(
+      ApiEndpoints.getMe,
     );
-    return UserModel.fromJson(response.data['result']);
+    return SingleResponse.fromJson(
+      response.data,
+      (json) => UserModel.fromJson(json),
+    );
   }
-}
 
-class UpdateMeRequest {
-  final String name;
-
-  const UpdateMeRequest({required this.name});
-
-  Map<String, dynamic> toJson() => {'name': name};
+  Future<SingleResponse<UserModel>> updateMe({required String name}) async {
+    final response = await _dio.put(
+      ApiEndpoints.updateMe,
+      data: {'name': name},
+    );
+    return SingleResponse.fromJson(
+      response.data,
+      (json) => UserModel.fromJson(json),
+    );
+  }
 }
