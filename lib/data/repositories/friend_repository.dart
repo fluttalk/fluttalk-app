@@ -1,47 +1,43 @@
 import 'package:dio/dio.dart';
-import 'package:fluttalk/data/models/user.dart';
+import 'package:fluttalk/core/api/list_response.dart';
+import 'package:fluttalk/core/api/single_response.dart';
+import 'package:fluttalk/core/network/end_points.dart';
+import 'package:fluttalk/data/models/user_model.dart';
 
 class FriendRepository {
   final Dio _dio;
 
   FriendRepository(this._dio);
 
-  Future<List<User>> getFriends() async {
-    final response = await _dio.get('getFriends');
-    return (response.data['results'] as List)
-        .map((json) => User.fromJson(json))
-        .toList();
-  }
-
-  Future<User> addFriendByEmail(AddFriendRequest request) async {
-    final response = await _dio.post(
-      'addFriendByEmail',
-      data: request.toJson(),
+  Future<ListResponse<UserModel>> getFriends() async {
+    final response = await _dio.get(ApiEndpoints.getFriends);
+    return ListResponse.fromJson(
+      response.data,
+      (json) => UserModel.fromJson(json),
     );
-    return User.fromJson(response.data['result']);
   }
 
-  Future<User> removeFriendByEmail(RemoveFriendRequest request) async {
+  Future<SingleResponse<UserModel>> addFriendByEmail(
+      {required String email}) async {
     final response = await _dio.post(
-      'removeFriendByEmail',
-      data: request.toJson(),
+      ApiEndpoints.addFriendByEmail,
+      data: {'email': email},
     );
-    return User.fromJson(response.data['result']);
+    return SingleResponse.fromJson(
+      response.data,
+      (json) => UserModel.fromJson(json),
+    );
   }
-}
 
-class AddFriendRequest {
-  final String email;
-
-  const AddFriendRequest({required this.email});
-
-  Map<String, dynamic> toJson() => {'email': email};
-}
-
-class RemoveFriendRequest {
-  final String email;
-
-  const RemoveFriendRequest({required this.email});
-
-  Map<String, dynamic> toJson() => {'email': email};
+  Future<SingleResponse<UserModel>> removeFriendByEmail(
+      {required String email}) async {
+    final response = await _dio.delete(
+      ApiEndpoints.removeFriendByEmail,
+      data: {'email': email},
+    );
+    return SingleResponse.fromJson(
+      response.data,
+      (json) => UserModel.fromJson(json),
+    );
+  }
 }
