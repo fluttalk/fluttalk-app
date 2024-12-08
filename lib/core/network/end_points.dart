@@ -14,4 +14,6 @@ class ApiEndpoints {
   static const sendMessage = 'https://sendmessage-cwpwobd65q-uc.a.run.app';
   static const registerPushToken =
       'https://registerpushtoken-cwpwobd65q-uc.a.run.app';
+  static const refreshToken = 'https://refreshtoken-cwpwobd65q-uc.a.run.app';
+  static const revokeToken = 'https://revoketoken-cwpwobd65q-uc.a.run.app';
 }
