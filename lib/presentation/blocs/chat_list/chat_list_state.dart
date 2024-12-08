@@ -6,12 +6,14 @@ class ChatListState {
   final bool hasMore;
   final String? nextKey;
   final String? error;
+  final ChatEntity? createdChat; // 새로 추가
 
   const ChatListState({
     this.chats = const AsyncInitial(),
     this.hasMore = true,
     this.nextKey,
     this.error,
+    this.createdChat,
   });
 
   ChatListState copyWith({
@@ -19,12 +21,14 @@ class ChatListState {
     bool? hasMore,
     String? nextKey,
     String? error,
+    ChatEntity? createdChat,
   }) {
     return ChatListState(
       chats: chats ?? this.chats,
       hasMore: hasMore ?? this.hasMore,
       nextKey: nextKey,
       error: error,
+      createdChat: createdChat,
     );
   }
 }

@@ -118,11 +118,15 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
           _ => <ChatEntity>[],
         };
 
-        // 새로운 채팅방을 맨 위에 추가
+        // 새로운 채팅방을 맨 위에 추가하고 createdChat 설정
         emit(state.copyWith(
           chats: AsyncData([newChat, ...currentChats]),
           error: null,
+          createdChat: newChat,
         ));
+
+        // createdChat 초기화
+        emit(state.copyWith(createdChat: null));
       },
     );
   }
