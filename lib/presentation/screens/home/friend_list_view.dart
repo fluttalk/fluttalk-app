@@ -10,60 +10,28 @@ import 'package:fluttalk/presentation/components/friend_list/friend_list_item.da
 class FriendListView extends StatelessWidget {
   const FriendListView({super.key});
 
-  void _showAddFriendDialog(BuildContext context) {
-    final emailController = TextEditingController();
-    final cubit = context.read<FriendManagementCubit>();
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('친구 추가'),
-        content: TextField(
-          controller: emailController,
-          decoration: const InputDecoration(
-            labelText: '이메일',
-            hintText: '친구의 이메일을 입력하세요',
-          ),
-          keyboardType: TextInputType.emailAddress,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              final email = emailController.text.trim();
-              if (email.isNotEmpty) {
-                cubit.addFriend(email);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('추가'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FriendManagementCubit, AsyncValue<FriendEntity>>(
       listener: (context, state) {
+        print('Listener received state: ${state.runtimeType}'); // 상태 타입 확인
+
         if (state is AsyncError) {
+          print('Handling AsyncError');
           switch (state) {
             case AsyncError(message: final message):
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(message)),
               );
-            case AsyncData():
-              context.read<FriendListCubit>().loadFriends();
-            case _:
+            case (_):
               break;
           }
-        }
-        if (state is AsyncData) {
-          context.read<FriendListCubit>().loadFriends();
+        } else if (state is AsyncData<FriendEntity>) {
+          print('Handling AsyncData, about to load friends');
+          // 약간의 딜레이를 주어 상태가 안정화되도록 함
+          Future.microtask(() {
+            context.read<FriendListCubit>().loadFriends();
+          });
         }
       },
       builder: (context, managementState) {
@@ -71,9 +39,7 @@ class FriendListView extends StatelessWidget {
           builder: (context, state) {
             return CustomScrollView(
               slivers: [
-                FriendListSliverAppBar(
-                  onAddFrinedTap: () => _showAddFriendDialog(context),
-                ),
+                const FriendListSliverAppBar(),
                 switch (state) {
                   AsyncInitial() => const SliverFillRemaining(
                       child: Center(child: Text("친구 목록을 불러오는 중...")),

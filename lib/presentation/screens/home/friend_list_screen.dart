@@ -25,6 +25,7 @@ class FriendListScreen extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
+        RepositoryProvider.value(value: friendService),
         BlocProvider(
           create: (context) => FriendListCubit(friendService)..loadFriends(),
         ),

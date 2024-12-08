@@ -3,6 +3,7 @@ import 'package:fluttalk/data/repositories/user_repository.dart';
 import 'package:fluttalk/domain/services/auth_service.dart';
 import 'package:fluttalk/domain/services/user_service.dart';
 import 'package:fluttalk/domain/usecase/auth/index.dart';
+import 'package:fluttalk/domain/usecase/auth/revoke_token_usecase.dart';
 import 'package:fluttalk/domain/usecase/user/index.dart';
 import 'package:fluttalk/presentation/blocs/me_cubit.dart';
 import 'package:fluttalk/presentation/screens/home/more_view.dart';
@@ -24,6 +25,10 @@ class MoreScreen extends StatelessWidget {
         GetCurrentUserUseCase(context.read<AuthRepository>());
     final getAuthStateChangesUseCase =
         GetAuthStateChangesUseCase(context.read<AuthRepository>());
+    final refreshTokenUseCase =
+        RefreshTokenUseCase(context.read<AuthRepository>());
+    final revokeTokenUseCase =
+        RevokeTokenUseCase(context.read<AuthRepository>());
 
     // User UseCases
     final getMeUseCase = GetMeUseCase(
@@ -42,6 +47,8 @@ class MoreScreen extends StatelessWidget {
       signOutUseCase,
       getCurrentUserUseCase,
       getAuthStateChangesUseCase,
+      refreshTokenUseCase,
+      revokeTokenUseCase,
     );
 
     final userService = UserService(

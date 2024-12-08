@@ -77,28 +77,56 @@ class _ChatListViewState extends State<ChatListView> {
 
   _createChat(BuildContext context, FriendEntity friend, String title) async {
     final chatService = context.read<ChatService>();
-    final result = await chatService.createChat(
+    final messageService = context.read<MessageService>();
+
+    final bloc = context.read<ChatListBloc>();
+    final previousChats = bloc.state.chats;
+
+    bloc.add(CreateChatEvent(
       email: friend.email,
       title: title,
-    );
+    ));
 
-    result.fold(
-      (error) {
-        // 에러 처리 (예: 스낵바 표시)
+    // 새로운 채팅방이 생성될 때까지 대기
+    await for (final state in bloc.stream) {
+      if (!context.mounted) return;
+
+      // 에러가 있으면 표시
+      if (state.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.message)),
+          SnackBar(content: Text(state.error!)),
         );
-      },
-      (chat) {
-        if (!context.mounted) return;
+        break;
+      }
 
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ChatRoomScreen(
-            chatId: chat.id,
-          ),
-        ));
-      },
-    );
+      // 새로운 채팅방이 추가되었는지 확인
+      if (state.chats is AsyncData) {
+        final currentChats = (state.chats as AsyncData<List<ChatEntity>>).data;
+        if (previousChats is AsyncData) {
+          final prevChatList =
+              (previousChats as AsyncData<List<ChatEntity>>).data;
+          if (currentChats.length > prevChatList.length) {
+            // 새로운 채팅방으로 이동
+            final newChat = currentChats.first;
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (context) => ChatRoomBloc(
+                      chatService: chatService,
+                      messageService: messageService,
+                      chatId: newChat.id,
+                    )..add(LoadMoreMessagesEvent()),
+                  ),
+                ],
+                child: ChatRoomScreen(chatId: newChat.id),
+              ),
+            ));
+            break;
+          }
+        }
+      }
+    }
   }
 
   _onSelect(BuildContext context, ChatEntity chat) {

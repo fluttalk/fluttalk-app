@@ -45,6 +45,8 @@ class ChatRoomScreen extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
+        RepositoryProvider.value(value: chatService),
+        RepositoryProvider.value(value: messageService),
         BlocProvider(
           create: (context) => ChatRoomBloc(
             messageService: messageService,

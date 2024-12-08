@@ -38,8 +38,8 @@ class _EditChatTitleBottomSheetState extends State<EditChatTitleBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
+    return Container(
+      margin: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: SizedBox(
