@@ -1,4 +1,3 @@
-import 'package:fluttalk/domain/entities/chat_entity.dart';
 import 'package:fluttalk/gen/assets.gen.dart';
 import 'package:fluttalk/presentation/blocs/chat_room/chat_room_bloc.dart';
 import 'package:fluttalk/presentation/blocs/chat_room/chat_room_event.dart';

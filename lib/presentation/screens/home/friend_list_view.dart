@@ -14,10 +14,10 @@ class FriendListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<FriendManagementCubit, AsyncValue<FriendEntity>>(
       listener: (context, state) {
-        print('Listener received state: ${state.runtimeType}'); // 상태 타입 확인
+        // print('Listener received state: ${state.runtimeType}'); // 상태 타입 확인
 
         if (state is AsyncError) {
-          print('Handling AsyncError');
+          // print('Handling AsyncError');
           switch (state) {
             case AsyncError(message: final message):
               ScaffoldMessenger.of(context).showSnackBar(
@@ -27,10 +27,10 @@ class FriendListView extends StatelessWidget {
               break;
           }
         } else if (state is AsyncData<FriendEntity>) {
-          print('Handling AsyncData, about to load friends');
+          // print('Handling AsyncData, about to load friends');
           // 약간의 딜레이를 주어 상태가 안정화되도록 함
           Future.microtask(() {
-            context.read<FriendListCubit>().loadFriends();
+            if (context.mounted) context.read<FriendListCubit>().loadFriends();
           });
         }
       },

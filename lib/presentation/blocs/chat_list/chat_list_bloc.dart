@@ -46,7 +46,7 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
 
     // 새로운 채팅방 목록을 로드합니다
     final result = await _chatService.getChats(startAt: state.nextKey);
-    print(result);
+    // print(result);
     result.fold(
       (error) => emit(state.copyWith(
         chats: AsyncError(error.message),

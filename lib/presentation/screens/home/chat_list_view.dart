@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:fluttalk/domain/entities/chat_entity.dart';
 import 'package:fluttalk/domain/entities/friend_entity.dart';
-import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fluttalk/domain/services/chat_service.dart';
 import 'package:fluttalk/domain/services/message_service.dart';
 import 'package:fluttalk/presentation/bloc/base/async_value.dart';
@@ -16,7 +15,6 @@ import 'package:fluttalk/presentation/components/chat_list/chat_list_sliver_app_
 import 'package:fluttalk/presentation/components/common/search_text_field.dart';
 import 'package:fluttalk/presentation/screens/chat_room/chat_room_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatListView extends StatefulWidget {
@@ -192,7 +190,7 @@ class _ChatListViewState extends State<ChatListView> {
 
         // 상태별 추가 에러 처리
         if (state.chats case AsyncError(message: final message)) {
-          print('Chat list load error: $message'); // 로깅 추가
+          // print('Chat list load error: $message'); // 로깅 추가
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('채팅 목록을 불러오는데 실패했습니다: $message'),

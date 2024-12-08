@@ -1,5 +1,4 @@
 import 'package:fluttalk/domain/entities/friend_entity.dart';
-import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fluttalk/gen/assets.gen.dart';
 import 'package:fluttalk/presentation/components/bottom_sheet/edit_chat_title_bottom_sheet.dart';
 import 'package:fluttalk/presentation/components/bottom_sheet/select_friend_bottom_sheet.dart';

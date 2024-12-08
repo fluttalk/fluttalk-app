@@ -1,13 +1,8 @@
 import 'package:fluttalk/core/error/error.dart';
 import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fluttalk/domain/entities/token_entity.dart';
-import 'package:fluttalk/domain/usecase/auth/get_auth_state_changes_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/get_current_user_usecase.dart';
 import 'package:fluttalk/domain/usecase/auth/index.dart';
 import 'package:fluttalk/domain/usecase/auth/revoke_token_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/sign_in_with_email_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/sign_out_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/sign_up_with_email_usecase.dart';
 import 'package:fpdart/fpdart.dart';
 
 class AuthService {
