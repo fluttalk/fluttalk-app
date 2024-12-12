@@ -47,80 +47,88 @@ class _ChatRoomViewState extends State<ChatRoomView> {
           children: [
             BlocBuilder<ChatRoomBloc, ChatRoomState>(
               builder: (context, state) {
-                return CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    const ChatRoomSliverAppBar(),
-                    switch (state.messages) {
-                      AsyncInitial() => const SliverFillRemaining(
-                          child: Center(child: Text("메시지를 불러오는 중...")),
-                        ),
-                      AsyncLoading() => const SliverFillRemaining(
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                      AsyncError(message: final message) => SliverFillRemaining(
-                          child: Center(child: Text(message)),
-                        ),
-                      AsyncData(data: final messages) => messages.isEmpty
-                          ? const SliverFillRemaining(
-                              child: Center(child: Text("메시지가 없습니다")),
-                            )
-                          : SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final message = messages[index];
-                                  final isMyMessage =
-                                      message.senderId == currentUser?.uid;
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    FocusScope.of(context).unfocus(); // 포커스 해제
+                  },
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      const ChatRoomSliverAppBar(),
+                      switch (state.messages) {
+                        AsyncInitial() => const SliverFillRemaining(
+                            child: Center(child: Text("메시지를 불러오는 중...")),
+                          ),
+                        AsyncLoading() => const SliverFillRemaining(
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                        AsyncError(message: final message) =>
+                          SliverFillRemaining(
+                            child: Center(child: Text(message)),
+                          ),
+                        AsyncData(data: final messages) => messages.isEmpty
+                            ? const SliverFillRemaining(
+                                child: Center(child: Text("메시지가 없습니다")),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final message = messages[index];
+                                    final isMyMessage =
+                                        message.senderId == currentUser?.uid;
 
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 4,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: isMyMessage
-                                          ? MainAxisAlignment.end
-                                          : MainAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.7,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: isMyMessage
-                                                ? Colors.blue
-                                                : Colors.grey[300],
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            message.content,
-                                            style: TextStyle(
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 4,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: isMyMessage
+                                            ? MainAxisAlignment.end
+                                            : MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 10,
+                                            ),
+                                            decoration: BoxDecoration(
                                               color: isMyMessage
-                                                  ? Colors.white
-                                                  : Colors.black,
+                                                  ? Colors.blue
+                                                  : Colors.grey[300],
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              message.content,
+                                              style: TextStyle(
+                                                color: isMyMessage
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                                childCount: messages.length,
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  childCount: messages.length,
+                                ),
                               ),
-                            ),
-                    },
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: ChatRoomMessageTextField.height),
-                    ),
-                  ],
+                      },
+                      const SliverToBoxAdapter(
+                        child:
+                            SizedBox(height: ChatRoomMessageTextField.height),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

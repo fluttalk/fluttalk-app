@@ -31,7 +31,7 @@ class ChatListItem extends StatelessWidget {
                 ItemTitles(
                     main: chat.title, sub: chat.lastMessage?.content ?? ''),
                 const SizedBox(width: 4),
-                const ChatListItemMetadata(),
+                ChatListItemMetadata(chat: chat),
               ],
             ),
             const SizedBox(height: 12.5),

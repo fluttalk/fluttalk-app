@@ -45,6 +45,7 @@ dependencies:
   hydrated_bloc: ^9.1.5
   bloc_concurrency: ^0.2.5
   cloud_firestore: ^5.3.1
+  firebase_messaging: ^15.1.5
 
 dev_dependencies:
   flutter_test:

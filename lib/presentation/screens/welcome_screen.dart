@@ -26,13 +26,13 @@ class WelcomeScreen extends StatelessWidget {
               Assets.images.login.image(scale: 2),
               const SizedBox(height: 42),
               const Text(
-                "Communicate across Countries",
+                "다양한 플러터 개발자들과\n이야기를 나눠보세요",
                 style: MyTextStyles.heading2,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 127),
               const Text(
-                "Terms & Privacy Policy",
+                "이용 약관 및 정책",
                 style: MyTextStyles.bodyText1,
               ),
               const SizedBox(height: 18),
@@ -53,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
                         children: [
                           const SizedBox(width: 8),
                           Text(
-                            "Start Messaging",
+                            "대화 시작하기",
                             style: MyTextStyles.subheading2.copyWith(
                               color: MyColors.neutralOffWhite,
                             ),

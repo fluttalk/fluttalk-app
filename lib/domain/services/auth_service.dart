@@ -1,10 +1,8 @@
 import 'package:fluttalk/core/error/error.dart';
 import 'package:fluttalk/domain/entities/me_entity.dart';
-import 'package:fluttalk/domain/usecase/auth/get_auth_state_changes_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/get_current_user_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/sign_in_with_email_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/sign_out_usecase.dart';
-import 'package:fluttalk/domain/usecase/auth/sign_up_with_email_usecase.dart';
+import 'package:fluttalk/domain/entities/token_entity.dart';
+import 'package:fluttalk/domain/usecase/auth/index.dart';
+import 'package:fluttalk/domain/usecase/auth/revoke_token_usecase.dart';
 import 'package:fpdart/fpdart.dart';
 
 class AuthService {
@@ -13,6 +11,8 @@ class AuthService {
   final SignOutUseCase _signOutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final GetAuthStateChangesUseCase _getAuthStateChangesUseCase;
+  final RefreshTokenUseCase _refreshTokenUseCase;
+  final RevokeTokenUseCase _revokeTokenUseCase;
 
   AuthService(
     this._signInWithEmailUseCase,
@@ -20,6 +20,8 @@ class AuthService {
     this._signOutUseCase,
     this._getCurrentUserUseCase,
     this._getAuthStateChangesUseCase,
+    this._refreshTokenUseCase,
+    this._revokeTokenUseCase,
   );
 
   // 현재 인증된 사용자 정보를 가져옵니다
@@ -57,5 +59,15 @@ class AuthService {
   // 로그아웃합니다
   Future<Either<AppException, void>> signOut() {
     return _signOutUseCase.execute();
+  }
+
+  // 토큰을 갱신합니다
+  Future<Either<AppException, TokenEntity>> refreshToken() {
+    return _refreshTokenUseCase.execute();
+  }
+
+  // 토큰을 폐기합니다
+  Future<Either<AppException, Unit>> revokeToken() {
+    return _revokeTokenUseCase.execute();
   }
 }

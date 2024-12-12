@@ -3,7 +3,6 @@ import 'package:fluttalk/core/error/error.dart';
 import 'package:fluttalk/domain/entities/chat_entity.dart';
 import 'package:fluttalk/domain/entities/pagination_list.dart';
 import 'package:fluttalk/domain/usecase/chat/index.dart';
-import 'package:fluttalk/domain/usecase/chat/wath_chat_useacase.dart';
 import 'package:fpdart/fpdart.dart';
 
 class ChatService {

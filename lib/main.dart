@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => AuthRepository(
             FirebaseAuth.instance,
+            context.read<DioClient>().dio,
           ),
         ),
         RepositoryProvider(

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:fluttalk/domain/entities/chat_entity.dart';
 import 'package:fluttalk/domain/entities/friend_entity.dart';
-import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fluttalk/domain/services/chat_service.dart';
 import 'package:fluttalk/domain/services/message_service.dart';
 import 'package:fluttalk/presentation/bloc/base/async_value.dart';
@@ -16,7 +15,6 @@ import 'package:fluttalk/presentation/components/chat_list/chat_list_sliver_app_
 import 'package:fluttalk/presentation/components/common/search_text_field.dart';
 import 'package:fluttalk/presentation/screens/chat_room/chat_room_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatListView extends StatefulWidget {
@@ -77,28 +75,56 @@ class _ChatListViewState extends State<ChatListView> {
 
   _createChat(BuildContext context, FriendEntity friend, String title) async {
     final chatService = context.read<ChatService>();
-    final result = await chatService.createChat(
+    final messageService = context.read<MessageService>();
+
+    final bloc = context.read<ChatListBloc>();
+    final previousChats = bloc.state.chats;
+
+    bloc.add(CreateChatEvent(
       email: friend.email,
       title: title,
-    );
+    ));
 
-    result.fold(
-      (error) {
-        // 에러 처리 (예: 스낵바 표시)
+    // 새로운 채팅방이 생성될 때까지 대기
+    await for (final state in bloc.stream) {
+      if (!context.mounted) return;
+
+      // 에러가 있으면 표시
+      if (state.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.message)),
+          SnackBar(content: Text(state.error!)),
         );
-      },
-      (chat) {
-        if (!context.mounted) return;
+        break;
+      }
 
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ChatRoomScreen(
-            chatId: chat.id,
-          ),
-        ));
-      },
-    );
+      // 새로운 채팅방이 추가되었는지 확인
+      if (state.chats is AsyncData) {
+        final currentChats = (state.chats as AsyncData<List<ChatEntity>>).data;
+        if (previousChats is AsyncData) {
+          final prevChatList =
+              (previousChats as AsyncData<List<ChatEntity>>).data;
+          if (currentChats.length > prevChatList.length) {
+            // 새로운 채팅방으로 이동
+            final newChat = currentChats.first;
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (context) => ChatRoomBloc(
+                      chatService: chatService,
+                      messageService: messageService,
+                      chatId: newChat.id,
+                    )..add(LoadMoreMessagesEvent()),
+                  ),
+                ],
+                child: ChatRoomScreen(chatId: newChat.id),
+              ),
+            ));
+            break;
+          }
+        }
+      }
+    }
   }
 
   _onSelect(BuildContext context, ChatEntity chat) {
@@ -164,7 +190,7 @@ class _ChatListViewState extends State<ChatListView> {
 
         // 상태별 추가 에러 처리
         if (state.chats case AsyncError(message: final message)) {
-          print('Chat list load error: $message'); // 로깅 추가
+          // print('Chat list load error: $message'); // 로깅 추가
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('채팅 목록을 불러오는데 실패했습니다: $message'),

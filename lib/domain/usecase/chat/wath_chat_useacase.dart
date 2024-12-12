@@ -14,7 +14,7 @@ class WatchChatUseCase {
         if (chat == null) {
           return const Left(DataFormatException('채팅방 정보가 없습니다'));
         }
-        print(chat);
+        // print(chat);
         return Right(ChatEntity.from(chat));
       });
     } catch (e) {

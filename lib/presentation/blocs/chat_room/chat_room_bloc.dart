@@ -28,16 +28,29 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
     on<SendMessageEvent>(_onSendMessage);
 
     // 블록 생성 시 채팅방 구독 시작
-    _startWatching();
+    // _startWatching();
+    _initializeChat();
   }
 
-  void _startWatching() {
+  // void _startWatching() {
+  //   _chatSubscription = _chatService.watchChat(chatId).listen((result) {
+  //     result.fold(
+  //       (error) => null,
+  //       (chat) => add(ChatUpdatedEvent(chat)),
+  //     );
+  //   });
+  // }
+  Future<void> _initializeChat() async {
+    // 채팅방 구독 시작
     _chatSubscription = _chatService.watchChat(chatId).listen((result) {
       result.fold(
         (error) => null,
         (chat) => add(ChatUpdatedEvent(chat)),
       );
     });
+
+    // 초기 메시지 로드
+    add(LoadMoreMessagesEvent());
   }
 
   Future<void> _onLoadMore(
@@ -166,7 +179,19 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
 
     result.fold(
       (error) => emit(state.copyWith(error: error.message)),
-      (message) => null, // 실시간 구독을 통해 메시지가 추가될 것임
+      (message) {
+        if (state.messages case AsyncData(data: final messages)) {
+          emit(state.copyWith(
+            messages: AsyncData([message, ...messages]),
+            error: null,
+          ));
+        } else {
+          emit(state.copyWith(
+            messages: AsyncData([message]),
+            error: null,
+          ));
+        }
+      },
     );
   }
 

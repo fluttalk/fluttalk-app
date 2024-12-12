@@ -1,6 +1,5 @@
 import 'package:fluttalk/core/error/error.dart';
 import 'package:fluttalk/data/repositories/auth_repository.dart';
-import 'package:fluttalk/data/repositories/user_repository.dart';
 import 'package:fluttalk/domain/entities/me_entity.dart';
 import 'package:fpdart/fpdart.dart';
 

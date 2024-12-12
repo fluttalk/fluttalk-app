@@ -15,11 +15,15 @@ class FriendManagementCubit extends Cubit<AsyncValue<FriendEntity>> {
 
     return result.fold(
       (failure) {
+        // print('Add friend failed: ${failure.message}'); // 실패 로그
         emit(AsyncError(failure.message));
         return false;
       },
       (friend) {
+        // print('Add friend success: $friend'); // 성공 로그
+        // print('Emitting AsyncData state'); // 상태 변경 직전 로그
         emit(AsyncData(friend));
+        // print('AsyncData state emitted');
         return true;
       },
     );
