@@ -8,7 +8,7 @@ import 'package:fluttalk/data/repositories/friend_repository.dart';
 import 'package:fluttalk/data/repositories/message_repository.dart';
 import 'package:fluttalk/data/repositories/user_repository.dart';
 import 'package:fluttalk/firebase_options.dart';
-import 'package:fluttalk/presentation/screens/auth_state_screen.dart';
+import 'package:fluttalk/presentation/screens/home/auth_state_screen.dart';
 import 'package:fluttalk/presentation/screens/welcome_screen.dart';
 import 'package:fluttalk/presentation/theme/my_theme.dart';
 import 'package:flutter/material.dart';
