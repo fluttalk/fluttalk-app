@@ -22,4 +22,7 @@ class MessageEntity {
       sentAt: DateTime.fromMillisecondsSinceEpoch(model.sentAt),
     );
   }
+  bool isUsers(String usersUid) {
+    return senderId == usersUid;
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:fluttalk/gen/assets.gen.dart';
-import 'package:fluttalk/presentation/screens/auth_state_screen.dart';
+import 'package:fluttalk/presentation/screens/home/auth_state_screen.dart';
 import 'package:fluttalk/presentation/theme/my_colors.dart';
 import 'package:fluttalk/presentation/theme/my_text_styles.dart';
 import 'package:flutter/material.dart';

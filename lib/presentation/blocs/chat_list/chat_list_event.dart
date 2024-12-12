@@ -11,6 +11,12 @@ class ChatUpdatedEvent extends ChatListEvent {
   ChatUpdatedEvent(this.chat);
 }
 
+class ChatUpdatedFromStreamEvent extends ChatListEvent {
+  final List<ChatEntity> chats;
+  final String? error;
+  ChatUpdatedFromStreamEvent({this.chats = const [], this.error});
+}
+
 class CreateChatEvent extends ChatListEvent {
   final String email;
   final String title;

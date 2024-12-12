@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fluttalk/domain/entities/chat_entity.dart';
 import 'package:fluttalk/domain/entities/message_entity.dart';
 import 'package:fluttalk/domain/services/chat_service.dart';
 import 'package:fluttalk/domain/services/message_service.dart';
@@ -27,19 +28,13 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
     on<ChatUpdatedEvent>(_onChatUpdated);
     on<SendMessageEvent>(_onSendMessage);
 
-    // 블록 생성 시 채팅방 구독 시작
-    // _startWatching();
     _initializeChat();
   }
 
-  // void _startWatching() {
-  //   _chatSubscription = _chatService.watchChat(chatId).listen((result) {
-  //     result.fold(
-  //       (error) => null,
-  //       (chat) => add(ChatUpdatedEvent(chat)),
-  //     );
-  //   });
-  // }
+  void _sortMessagesBySentAt(List<MessageEntity> messages) {
+    messages.sort((a, b) => a.sentAt.compareTo(b.sentAt));
+  }
+
   Future<void> _initializeChat() async {
     // 채팅방 구독 시작
     _chatSubscription = _chatService.watchChat(chatId).listen((result) {
@@ -48,7 +43,6 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
         (chat) => add(ChatUpdatedEvent(chat)),
       );
     });
-
     // 초기 메시지 로드
     add(LoadMoreMessagesEvent());
   }
@@ -64,10 +58,10 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
       _ => <MessageEntity>[],
     };
 
-    if (currentMessages.isNotEmpty) {
-      emit(state.copyWith(messages: AsyncData(currentMessages)));
-    } else {
+    if (currentMessages.isEmpty) {
       emit(state.copyWith(messages: const AsyncLoading()));
+    } else {
+      emit(state.copyWith(messages: AsyncData(currentMessages)));
     }
 
     final result = await _messageService.getMessages(
@@ -81,7 +75,12 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
         error: error.message,
       )),
       (pagedMessages) {
-        final newMessages = [...currentMessages, ...pagedMessages.items];
+        // 오래된 메시지를 앞에 추가
+        final newMessages = [...pagedMessages.items, ...currentMessages];
+
+        // 정렬 적용: 오래된 메시지부터 최신 메시지까지 순서 보장
+        _sortMessagesBySentAt(newMessages);
+
         emit(state.copyWith(
           messages: AsyncData(newMessages),
           hasMore: pagedMessages.nextKey != null,
@@ -109,7 +108,12 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
       _ => <MessageEntity>[],
     };
 
-    final updatedMessages = [...event.messages, ...currentMessages];
+    // 새 메시지 뒤쪽에 추가
+    final updatedMessages = [...currentMessages, ...event.messages];
+
+    // 정렬 적용
+    _sortMessagesBySentAt(updatedMessages);
+
     emit(state.copyWith(
       messages: AsyncData(updatedMessages),
       error: null,
@@ -120,39 +124,37 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
     ChatUpdatedEvent event,
     Emitter<ChatRoomState> emit,
   ) async {
-    // 우선 채팅방 정보를 상태에 반영합니다.
+    // 채팅방 정보 업데이트
     emit(state.copyWith(chat: event.chat));
 
-    // 현재 로드된 메시지 목록을 가져옵니다.
     final currentMessages = switch (state.messages) {
       AsyncData(data: final messages) => messages,
       _ => <MessageEntity>[],
     };
 
-    // 메시지가 하나도 없다면 (첫 로드) 메시지 로드를 시작합니다.
+    // 메시지가 없으면 메시지 로드
     if (currentMessages.isEmpty) {
       add(LoadMoreMessagesEvent());
       return;
     }
 
-    // lastMessage가 있고 새 메시지가 도착했을 때만 처리합니다.
+    // lastMessage 업데이트 시 새 메시지 확인
     if (event.chat.lastMessage != null) {
-      // 모든 이전 메시지를 로드했는지 확인합니다.
       if (!state.hasMore) {
-        // 마지막으로 받은 메시지 이후의 새 메시지들을 요청합니다.
+        // 모든 이전 메시지를 로드한 상태라면 새로운 메시지 요청
         final result = await _messageService.getNewMessages(
           chatId: chatId,
-          lastNewestSentAt: currentMessages.first.sentAt.millisecondsSinceEpoch,
+          lastNewestSentAt: currentMessages.last.sentAt.millisecondsSinceEpoch,
         );
 
         result.fold(
-          // 에러가 발생하면 상태에 에러 메시지를 저장합니다.
           (error) => emit(state.copyWith(error: error.message)),
-          // 새 메시지가 있다면 현재 목록 앞에 추가합니다.
           (newMessages) {
             if (newMessages.isEmpty) return;
 
-            final updatedMessages = [...newMessages, ...currentMessages];
+            final updatedMessages = [...currentMessages, ...newMessages];
+            _sortMessagesBySentAt(updatedMessages);
+
             emit(state.copyWith(
               messages: AsyncData(updatedMessages),
               error: null,
@@ -160,9 +162,8 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
           },
         );
       } else {
-        // 아직 이전 메시지가 더 있다면, 새로고침하여 처음부터 다시 로드합니다.
-        // 이는 메시지의 연속성을 보장하기 위함입니다.
-        emit(ChatRoomState(chat: state.chat)); // 상태 초기화 (채팅방 정보는 유지)
+        // 이전 메시지가 더 있다면 다시 로딩
+        emit(ChatRoomState(chat: state.chat));
         add(LoadMoreMessagesEvent());
       }
     }
@@ -180,17 +181,18 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
     result.fold(
       (error) => emit(state.copyWith(error: error.message)),
       (message) {
-        if (state.messages case AsyncData(data: final messages)) {
-          emit(state.copyWith(
-            messages: AsyncData([message, ...messages]),
-            error: null,
-          ));
-        } else {
-          emit(state.copyWith(
-            messages: AsyncData([message]),
-            error: null,
-          ));
-        }
+        final currentMessages = switch (state.messages) {
+          AsyncData(data: final messages) => messages,
+          _ => <MessageEntity>[],
+        };
+
+        final updatedMessages = [...currentMessages, message];
+        _sortMessagesBySentAt(updatedMessages);
+
+        emit(state.copyWith(
+          messages: AsyncData(updatedMessages),
+          error: null,
+        ));
       },
     );
   }

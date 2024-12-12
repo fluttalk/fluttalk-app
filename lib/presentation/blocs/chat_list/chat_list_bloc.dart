@@ -6,21 +6,23 @@ import 'package:fluttalk/presentation/bloc/base/async_value.dart';
 import 'package:fluttalk/presentation/blocs/chat_list/chat_list_event.dart';
 import 'package:fluttalk/presentation/blocs/chat_list/chat_list_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:fluttalk/core/error/error.dart';
 
 class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
   final ChatService _chatService;
-  // StreamSubscription? _chatSubscription;
+  final Map<String, StreamSubscription<Either<AppException, ChatEntity>>>
+      _chatSubscriptions = {};
 
-  ChatListBloc({
-    required ChatService chatService,
-  })  : _chatService = chatService,
+  ChatListBloc({required ChatService chatService})
+      : _chatService = chatService,
         super(const ChatListState()) {
     on<LoadMoreChatsEvent>(_onLoadMore);
     on<RefreshChatsEvent>(_onRefresh);
     on<ChatUpdatedEvent>(_onChatUpdated);
     on<CreateChatEvent>(_onCreateChat);
 
-    // 블록 생성 시 채팅방 목록 로드 시작
+    // 초기 로딩 시작
     add(LoadMoreChatsEvent());
   }
 
@@ -28,25 +30,22 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
     LoadMoreChatsEvent event,
     Emitter<ChatListState> emit,
   ) async {
-    // 이미 로딩 중이거나 더 불러올 항목이 없으면 중단
+    // 이미 로딩 중이거나 더 로드할 수 없다면 중단
     if (state.chats is AsyncLoading || !state.hasMore) return;
 
-    // 현재 채팅방 목록을 가져옵니다
     final currentChats = switch (state.chats) {
       AsyncData(data: final chats) => chats,
       _ => <ChatEntity>[],
     };
 
-    // 첫 로드가 아니면 현재 목록 유지, 아니면 로딩 상태로 전환
-    if (currentChats.isNotEmpty) {
-      emit(state.copyWith(chats: AsyncData(currentChats)));
-    } else {
+    // 첫 로드가 아니면 현재 목록 유지, 아니면 로딩 표시
+    if (currentChats.isEmpty) {
       emit(state.copyWith(chats: const AsyncLoading()));
+    } else {
+      emit(state.copyWith(chats: AsyncData(currentChats)));
     }
 
-    // 새로운 채팅방 목록을 로드합니다
     final result = await _chatService.getChats(startAt: state.nextKey);
-    // print(result);
     result.fold(
       (error) => emit(state.copyWith(
         chats: AsyncError(error.message),
@@ -60,6 +59,9 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
           nextKey: pagedChats.nextKey,
           error: null,
         ));
+
+        // 새로 로드한 챗들에 대해 watchChat 구독 시작
+        _subscribeToAllChats(newChats);
       },
     );
   }
@@ -68,7 +70,10 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
     RefreshChatsEvent event,
     Emitter<ChatListState> emit,
   ) async {
-    // 상태를 초기화하고 처음부터 다시 로드
+    // 기존 구독 정리
+    await _cancelAllChatSubscriptions();
+
+    // 상태 초기화 후 다시 로드
     emit(const ChatListState());
     add(LoadMoreChatsEvent());
   }
@@ -82,15 +87,12 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
       _ => <ChatEntity>[],
     };
 
-    // 업데이트된 채팅방의 위치를 찾습니다
     final index = currentChats.indexWhere((chat) => chat.id == event.chat.id);
 
     if (index != -1) {
-      // 채팅방이 이미 목록에 있으면 업데이트하고 최신 메시지가 있으면 맨 위로 이동
       final updatedChats = [...currentChats];
       updatedChats.removeAt(index);
-
-      // 새 메시지가 있으면 맨 위로, 아니면 원래 위치로
+      // lastMessage가 있으면 리스트 맨 앞으로 이동(최신 대화방)
       if (event.chat.lastMessage != null) {
         updatedChats.insert(0, event.chat);
       } else {
@@ -98,6 +100,8 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
       }
 
       emit(state.copyWith(chats: AsyncData(updatedChats)));
+    } else {
+      // 목록에 없는 신규 채팅방이 실시간 업데이트되었다면 추가 로직 필요 (상황에 따라)
     }
   }
 
@@ -118,22 +122,55 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
           _ => <ChatEntity>[],
         };
 
-        // 새로운 채팅방을 맨 위에 추가하고 createdChat 설정
+        final updatedChats = [newChat, ...currentChats];
         emit(state.copyWith(
-          chats: AsyncData([newChat, ...currentChats]),
+          chats: AsyncData(updatedChats),
           error: null,
           createdChat: newChat,
         ));
 
-        // createdChat 초기화
+        // 새로 생성한 챗에 대해 watchChat 구독 시작
+        _subscribeToChat(newChat.id);
+
         emit(state.copyWith(createdChat: null));
       },
     );
   }
 
+  void _subscribeToAllChats(List<ChatEntity> chats) {
+    for (final chat in chats) {
+      // 이미 구독 중이면 스킵
+      if (_chatSubscriptions.containsKey(chat.id)) continue;
+      _subscribeToChat(chat.id);
+    }
+  }
+
+  void _subscribeToChat(String chatId) {
+    final subscription = _chatService.watchChat(chatId).listen((result) {
+      result.fold(
+        (error) {
+          // 에러 발생 시 별도 처리 필요하면 추가
+          // 여기서는 무시
+        },
+        (updatedChat) {
+          // 채팅방 변경 시 ChatUpdatedEvent 발생
+          add(ChatUpdatedEvent(updatedChat));
+        },
+      );
+    });
+
+    _chatSubscriptions[chatId] = subscription;
+  }
+
+  Future<void> _cancelAllChatSubscriptions() async {
+    final futures = _chatSubscriptions.values.map((sub) => sub.cancel());
+    await Future.wait(futures);
+    _chatSubscriptions.clear();
+  }
+
   @override
-  Future<void> close() {
-    // _chatSubscription?.cancel();
+  Future<void> close() async {
+    await _cancelAllChatSubscriptions();
     return super.close();
   }
 }
