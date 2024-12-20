@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:fluttalk/domain/entities/chat_entity.dart';
 import 'package:fluttalk/domain/entities/message_entity.dart';
 import 'package:fluttalk/domain/services/chat_service.dart';
 import 'package:fluttalk/domain/services/message_service.dart';

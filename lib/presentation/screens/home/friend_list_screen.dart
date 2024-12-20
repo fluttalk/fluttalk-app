@@ -16,11 +16,6 @@ class FriendListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final getFriendsUseCase =
-    //     GetFriendsUseCase(context.read<FriendRepository>());
-    // final addFriendUseCase = AddFriendUseCase(context.read<FriendRepository>());
-    // final removeFriendUseCase =
-    //     RemoveFriendUseCase(context.read<FriendRepository>());
     final chatRepo = context.read<ChatRepository>();
     final friendRepo = context.read<FriendRepository>();
 
@@ -53,28 +48,3 @@ class FriendListScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-// class FriendListScreen extends StatelessWidget {
-//   const FriendListScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomScrollView(
-//       slivers: [
-//         const FriendListSliverAppBar(),
-//         SliverList(
-//           delegate: SliverChildBuilderDelegate(
-//             (_, index) => switch (index) {
-//               0 => const SizedBox(),
-//               // const SearchTextField(placeholder: "Search"),
-//               _ => const FriendListItem(),
-//             },
-//             childCount: 20,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }

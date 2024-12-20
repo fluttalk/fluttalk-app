@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttalk/domain/entities/friend_entity.dart';
 import 'package:fluttalk/presentation/components/bottom_sheet/custom_sliver_header_delegate.dart';
 import 'package:fluttalk/presentation/components/common/custom_button.dart';

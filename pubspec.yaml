@@ -39,11 +39,8 @@ dependencies:
   firebase_ui_auth: ^1.16.0
   dio: ^5.7.0
   flutter_bloc: ^8.1.6
-  bloc_test: ^9.1.7
   pretty_dio_logger: ^1.4.0
   fpdart: ^1.1.1
-  hydrated_bloc: ^9.1.5
-  bloc_concurrency: ^0.2.5
   cloud_firestore: ^5.3.1
   firebase_messaging: ^15.1.5
 
